@@ -1,0 +1,266 @@
+---
+title: "DS6306 Case Study 01"
+author: "Anon"
+date: "6/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# R Shiny link
+Check out the shiny app! \
+\
+https://rageofleviathan.shinyapps.io/BeerMe/
+
+# Introduction
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+library(tidyverse)
+dir = 'C:/Users/chief/Documents/SMU/Coursework/DS6306_DoingDataScience/DataSets'
+fname1 = 'Beers.csv'
+fname2 = 'Breweries.csv'
+fpath1 = paste(dir,fname1,sep='/')
+fpath2 = paste(dir,fname2,sep='/')
+
+beers = read.csv(fpath1)
+breweries = read.csv(fpath2)
+```
+There are a number of breweries, and thus beers, throughout the United States. These breweries will produce different styles of beer each in their own potentially unique style. However, one can logically expect for there to be trends in the regional tendencies of these breweries. It is an advantage to understand these tendencies so that scarce resources are effectively utilized and strategies created that will bring the maximum returns.  
+
+# Data
+THe data from this analysis comes from two different datasets, one that contains beer information and one that contains brewery information. These datasets will be merged into one for the purposes of this analysis. 
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+library(usmap)
+full_data = merge(beers,breweries,by.y="Brew_ID",by.x="Brewery_id") %>%
+  mutate(fips = fips(trimws(State)))
+```
+\
+Below is the first few entries from the combined data set. 
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+head(full_data)
+```
+\
+Now the last few entries are shown. 
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+tail(full_data)
+```
+\
+Finally, a random sample of entries. 
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+full_data[sample(1:nrow(full_data),10),]
+```
+
+# Breweries by State
+The first thing analyzed for this data set in the number of breweries in each state. The map below shows how many breweries were counted in each state.
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+st_data = breweries %>% count(State) %>% mutate(fips = fips(trimws(State))) 
+plot_usmap(data = st_data,values="n") + theme(legend.position = "right") + scale_fill_continuous(low = "white", high ="brown", 
+                          name = "Brewery Count",label = scales::comma,
+                          limits = c(0,50))
+```
+\
+Given that beer is not something new, this plot can also be looked at as a measure of the diversity of beer drinkers in each state. 
+\
+Below, the five states the highest brewery count are pulled out for easy reference.
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+st_data %>% slice_max(n,n=5) %>% summarise(State,n)
+```
+\
+The states with the fewest breweries have also been pulled out. There are 8 total because of four-way tie for fifth fewest breweries.
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+st_data %>% slice_min(n,n=5) %>% summarise(State,n)
+```
+\
+Base on the visual evidence there is not an even distribution of breweries among the states. Starting with the highest ranking state (Colorado) and moving down the list, the below plot shows how which states the data under analysis is coming from.
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+nst = nrow(st_data)
+nbrew = sum(st_data$n)
+st_data %>% arrange(desc(n)) %>% transmute(percent = n / nbrew) %>% cumsum() %>% ggplot(aes(x=1:nst,y=percent)) + geom_line() + xlab('Top N States') + ylab('Percent Data')
+```
+
+# Alcohol Content, Bitterness by State
+Two of the defining characteristics of beer is the alcohol content and the bitterness. The measure of these things are ABV and IBU respectively. 
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+abv = full_data %>% select(State,fips,ABV) %>% group_by(State) %>% 
+  summarise(avg_abv = mean(ABV,na.rm = TRUE),med_abv = median(ABV,na.rm=TRUE), n_valid = sum(!is.na(ABV)),fips = unique(fips))
+```
+## Alcohol Content
+Before analyzing the data, it needs to be noted that not every entry in the data set had an ABV entry. The below plot shows the valid data for each state. 
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+plot_usmap(data = abv,values="n_valid")+ theme(legend.position = "right") + scale_fill_continuous(low = "white", high ="darkgreen", 
+                          name = "Data Points",label = scales::comma,
+                          limits = c(0,300))
+```
+\
+Given a relatively few data entries are missing ABV data, the entries will simply be excluded from any analysis that uses ABV. THe first analysis is how alcohol content breaks down by state. Below we can see a map of how the median ABV content is distributed by state.  
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+abv = full_data %>% select(State,fips,ABV) %>% group_by(State) %>% 
+  summarise(avg_abv = mean(ABV,na.rm = TRUE),med_abv = median(ABV,na.rm=TRUE), n_valid = sum(!is.na(ABV)),fips = unique(fips))
+plot_usmap(data = abv,values="med_abv") + theme(legend.position = "right") + scale_fill_continuous(low = "white", high ="darkblue", 
+                          name = "Median ABV (%)",label = scales::comma,
+                          limits = c(0.03,0.07))
+```
+\
+As another comparison, the same data is shown again in bar chart format. 
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+abv %>% arrange(med_abv) %>% mutate(State = factor(State,State)) %>% ggplot(aes(y=State,x=med_abv)) + geom_bar(stat='identity')
+```
+\
+As seen in the above chart, there are no real concerns about deleting the data points when analyzing by state because there is plenty of entries leftover for each state to maintain a valid analysis. 
+
+## Summary Stats
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+summary(full_data$ABV)
+hist(full_data$ABV)
+```
+\
+Looking at the summary stats, we can see that ABV is close to normally distributed with a slight right skew. However, given the number of data points, it is safe to assume that is is normally distributed. This means that the majority of beers in the data set have between 5% and 6.7% alcohol content.  
+
+## Bitterness Content
+As the second primary characteristic of any particular beer, a similar analysis to IBU was done 
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+ibu = full_data %>% select(State,fips,IBU) %>% group_by(State) %>% 
+  summarise(avg_ibu = mean(IBU,na.rm = TRUE),med_ibu = median(IBU,na.rm=TRUE), n_valid = sum(!is.na(IBU)),fips = unique(fips))
+```
+\
+Below the states with the number of beers with IBU scores for each state are shown. States with below 15 ratings are grayed out to highlight them as states with a low amount of data. Another way to view this chart is as the states the are the primary influences of any further analysis that uses IBU score. This important to note because any missing data was removed from from further analysis. 
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+plot_usmap(data = ibu,values="n_valid") + theme(legend.position = 'right') + scale_fill_continuous(low = "white", high ="darkorange", name = "Data Points",label = scales::comma,limits = c(15,150))
+```
+\
+Similar to ABV, the median IBU for each state is shown as the color axis on a map of the United States. Note that South Dakota does not have any valid data.
+\
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+plot_usmap(data = ibu,values="med_ibu") + theme(legend.position = "right") + scale_fill_continuous(low = "darkblue", high ="darkorange", 
+                          name = "Median IBU",label = scales::comma,
+                          limits = c(0,65))
+```
+\
+Again, the same information as above in a bar chart format. 
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+ibu %>% arrange(med_ibu) %>% mutate(State = factor(State,State)) %>% ggplot(aes(y=State,x=med_ibu)) + geom_bar(stat='identity')
+```
+
+## Noteworthy States
+The state with the single beer that has the maximum ABV
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+full_data$State[which.max(full_data$ABV)]
+```
+\
+The state with the single beer that has the maximum IBU
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+full_data$State[which.max(full_data$IBU)]
+```
+
+# Alcohol Content and Bitterness Relationship
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+full_data %>% select(ABV,IBU) %>% ggplot(aes(x=ABV,y=IBU)) + geom_point()
+```
+\
+There appears to a positive correlation between ABV and IBU. This makes sense since one of the primary source of bitterness is the hop, which gets added in greater quantities as the alcohol content goes up to offset the taste. 
+
+# Ale Classification by Alcohol Content and Bitterness
+Given the desire to classify ales as either an IPA or not by their bitterness and alchol content. We need to look at how big of a problem the missing data, particularly IBU data really is. Below each non ale was filtered out of data set. The remaining data points were then classified as either an IPA or not based on the presence of 'IPA' in their style entry. Finally as a result of the ABV and IBU being on different scales, each variable was turned into a Z score to since the classification was going to be based on Euclidean distance. 
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+library(class)
+library(tidyverse)
+library(caret)
+sub_data = full_data %>% mutate(IPA = grepl('IPA',full_data$Style),Ale  =grepl('Ale',full_data$Style)) %>% filter(IPA | Ale) %>% select(IPA,ABV,IBU)
+
+sub_data = sub_data %>% mutate(Zabv = scale(ABV),Zibu = scale(IBU))
+
+sub_data %>% ggplot(aes(x=Zabv,y=Zibu,color=IPA)) + geom_point(position = 'jitter')
+
+```
+\
+Based on the visual evidence from the plot above, there is enough separation between an IPA and a non-IPA ale for the IBU and ABV to be used as predictors for the classification problem. Additionally the missing IBU data was evenly distributed so there are no additional concerns about removing the missing points since the sample is still representative of the larger population from the originally data set.
+
+## KNN Classifier
+It was determined that a KNN classifier should be used for this analysis. This only left the question of which value of K to use for this problem. Severl values of K were iterated through and the one with the best accuracy was chosen as the final selection. The plot for these values can be seen below. 
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+set.seed(39821638)
+train = sub_data %>% filter(!is.na(ABV)) %>% filter(!is.na(IBU)) 
+train$ale = 'Non-IPA'
+train$ale[train$IPA] = 'IPA'
+train = train %>% select(Zabv,Zibu,ale,ABV,IBU)
+train$ale = as.factor(train$ale)
+n_points = nrow(train)
+max_k = ceiling(.1 * n_points);
+acc = data.frame()
+for (kv in 1:max_k){
+  pred.ipa = knn.cv(train[,1:2],train$ale,k=kv)
+  Cmat = confusionMatrix(pred.ipa,train$ale,positive = 'IPA')
+  
+  acc[kv,1] = kv
+  acc[kv,2] = Cmat$overall[1]
+}
+colnames(acc) = c('K','Accuracy')
+acc %>% ggplot(aes(x=K,y=Accuracy)) + geom_line()
+
+```
+\
+Based on this data the best value for K is
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+sel_k = acc[which.max(acc[,2]),1]
+sel_k
+```
+\
+Using this selection of K, a classification surface was created that shows how any unknown ale would be classified based on it ABV and IBU score with color axis showing the probability that it would be classified as an IPA
+```{r, echo=FALSE, message = FALSE, warning=FALSE}
+library(pracma)
+min_x = min(train[,1])
+max_x = max(train[,1])
+min_y = min(train[,2])
+max_y = max(train[,2])
+Xvals = linspace(min_x,max_x,n=500)
+Yvals = linspace(min_y,max_y,n=500)
+grids = meshgrid(Xvals,Yvals)
+
+mean_ibu = mean(train$IBU)
+sd_ibu = sd(train$IBU)
+mean_abv = mean(train$ABV)
+sd_abv = sd(train$ABV)
+
+test=data.frame(Zabv = c(grids$X),Zibu = c(grids$Y))
+test = test %>% mutate(ABV = mean_abv + Zabv*sd_abv,IBU = mean_ibu + Zibu*sd_ibu)
+
+pred.test = knn(train[,1:2],test[,1:2],train$ale,k=sel_k,prob = TRUE)
+
+prob_ipa = attr(pred.test,'prob')
+
+prob_ipa[pred.test != 'IPA'] = 1 - prob_ipa[pred.test != 'IPA']
+
+test %>% ggplot(aes(x=ABV,y=IBU,fill=prob_ipa)) + geom_tile() + theme_bw() +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+```
+\
+This shows some visual evidence of ABV not being the best predictor for an IPA since there is a rough horizontal line in the surface arounf the IBU 50 mark. This falls in line with expectations since hops do not make a contribution to the alcohol content of a beer but do contribute to its bitterness, the trait that first comes to mind when describing an IPA. 
+# Popular Styles by State
+IPA is not the only style of beer and despite the overall interest in it we need to look at just how popularity of brewing style it is. It is expected that popular brewing style is correlated with popularity of beer consumed. The plot below shows the single most popular style in each state. 
+\
+```{r ,echo=FALSE, message = FALSE, warning=FALSE}
+pop = full_data %>% select(State,Style) %>% group_by(State) %>% 
+  count(Style) %>% slice_max(n,n=1) %>% mutate(fips = fips(trimws(State)))
+
+ pop$Style[pop$n <= 2] = 'Other'
+plot_usmap(data = pop,values="Style") + theme(legend.position = "right")
+```
+\
+As visually evident the American IPA is the most popular style in the most states. It is also seen the overall Ale style is the most popular broad style of beer in the with a few unique states. It is also interesting that the states are mostly are concentrated in the southeast. 
+
+# Conclusion
+There are only so many resources that any one company has. It is therefore important to allocated these resources in order to develop the best strategies and the desired return. Here, we have looked at how breweries are distributed across the Unites States, where they are concentrated and where they are scarce. We addressed where out data is coming from and how the missing data for each category was handled so that the limitations of this analysis could be understood and determine the scope of conclusions made. The ABV and IBU scores were compared among the states, as well as their ability to predict whether an ALE is an IPA or not. Finally the distribution of favorite beer style by state was generated to inform the which style of beer is most deserving a resources. Each of one these analysis highlight useful market data to inform resource allocation. 
