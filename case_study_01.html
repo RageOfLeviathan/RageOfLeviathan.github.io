@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Will Rogers, Lauren Nelson" />
+
+
+<title>DS6306 Case Study 01</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">My Website</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="home.html">Home</a>
+</li>
+<li>
+  <a href="about_me.html">About</a>
+</li>
+<li>
+  <a href="case_study_01.html">Case Study 01</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">DS6306 Case Study 01</h1>
+<h4 class="author">Will Rogers, Lauren Nelson</h4>
+<h4 class="date">6/26/2021</h4>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>There are a number of breweries, and thus beers, throughout the United States. These breweries will produce different styles of beer each in their own potentially unique style. However, one can logically expect for there to be trends in the regional tendencies of these breweries. It is an advantage to understand these tendencies so that scarce resources are effectively utilized and strategies created that will bring the maximum returns.</p>
+</div>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p>THe data from this analysis comes from two different datasets, one that contains beer information and one that contains brewery information. These datasets will be merged into one for the purposes of this analysis.</p>
+<p><br />
+Below is the first few entries from the combined data set.<br />
+</p>
+<pre><code>##   Brewery_id        Name.x Beer_ID   ABV IBU                               Style
+## 1          1  Get Together    2692 0.045  50                        American IPA
+## 2          1 Maggie&#39;s Leap    2691 0.049  26                  Milk / Sweet Stout
+## 3          1    Wall&#39;s End    2690 0.048  19                   English Brown Ale
+## 4          1       Pumpion    2689 0.060  38                         Pumpkin Ale
+## 5          1    Stronghold    2688 0.060  25                     American Porter
+## 6          1   Parapet ESB    2687 0.056  47 Extra Special / Strong Bitter (ESB)
+##   Ounces             Name.y        City State fips
+## 1     16 NorthGate Brewing  Minneapolis    MN   27
+## 2     16 NorthGate Brewing  Minneapolis    MN   27
+## 3     16 NorthGate Brewing  Minneapolis    MN   27
+## 4     16 NorthGate Brewing  Minneapolis    MN   27
+## 5     16 NorthGate Brewing  Minneapolis    MN   27
+## 6     16 NorthGate Brewing  Minneapolis    MN   27</code></pre>
+<p><br />
+Now the last few entries are shown.<br />
+</p>
+<pre><code>##      Brewery_id                    Name.x Beer_ID   ABV IBU                   Style
+## 2405        556             Pilsner Ukiah      98 0.055  NA         German Pilsener
+## 2406        557  Heinnieweisse Weissebier      52 0.049  NA              Hefeweizen
+## 2407        557           Snapperhead IPA      51 0.068  NA            American IPA
+## 2408        557         Moo Thunder Stout      50 0.049  NA      Milk / Sweet Stout
+## 2409        557         Porkslap Pale Ale      49 0.043  NA American Pale Ale (APA)
+## 2410        558 Urban Wilderness Pale Ale      30 0.049  NA        English Pale Ale
+##      Ounces                        Name.y          City State fips
+## 2405     12         Ukiah Brewing Company         Ukiah    CA   06
+## 2406     12       Butternuts Beer and Ale Garrattsville    NY   36
+## 2407     12       Butternuts Beer and Ale Garrattsville    NY   36
+## 2408     12       Butternuts Beer and Ale Garrattsville    NY   36
+## 2409     12       Butternuts Beer and Ale Garrattsville    NY   36
+## 2410     12 Sleeping Lady Brewing Company     Anchorage    AK   02</code></pre>
+<p><br />
+Finally, a random sample of entries.<br />
+</p>
+<pre><code>##      Brewery_id                Name.x Beer_ID   ABV IBU                  Style
+## 424          62                BLAKKR    1739 0.099  85     American Black Ale
+## 2261        498      THP Light (2006)     868    NA  NA    American Blonde Ale
+## 1955        394            Shark Bait    1508 0.053  11 Fruit / Vegetable Beer
+## 140          17 Hinchtown Hammer Down    2284 0.050  27    American Blonde Ale
+## 476          72               Old Pro    2506 0.042  10                   Gose
+## 2110        445          Morning Wood     986 0.055  35          Oatmeal Stout
+## 1949        393             Black IPA     967 0.071  95     American Black Ale
+## 781         132      Drop Dead Blonde     684 0.035  NA    American Blonde Ale
+## 274          37      Weiss Weiss Baby    2591 0.045  NA          Kristalweizen
+## 621          99           Cortez Gold    2442 0.050  NA       Belgian Pale Ale
+##      Ounces                            Name.y            City State fips
+## 424      16             Surly Brewing Company Brooklyn Center    MN   27
+## 2261     12              Cans Bar and Canteen       Charlotte    NC   37
+## 1955     12             Miami Brewing Company           Miami    FL   12
+## 140      16                 Flat 12 Bierwerks    Indianapolis    IN   18
+## 476      12               Union Craft Brewing       Baltimore    MD   24
+## 2110     16                  Big Wood Brewery Vadnais Heights    MN   27
+## 1949     12          Santa Fe Brewing Company        Santa Fe    NM   35
+## 781      12             Stevens Point Brewery   Stevens Point    WI   55
+## 274      12 Figueroa Mountain Brewing Company        Buellton    CA   06
+## 621      32                   Mission Brewery       San Diego    CA   06</code></pre>
+</div>
+<div id="breweries-by-state" class="section level1">
+<h1>Breweries by State</h1>
+<p>The first thing analyzed for this data set in the number of breweries in each state. The map below shows how many breweries were counted in each state.<br />
+<img src="case_study_01_files/figure-html/unnamed-chunk-6-1.png" width="672" /><br />
+Given that beer is not something new, this plot can also be looked at as a measure of the diversity of beer drinkers in each state.<br />
+Below, the five states the highest brewery count are pulled out for easy reference.<br />
+</p>
+<pre><code>##   State  n
+## 1    CO 47
+## 2    CA 39
+## 3    MI 32
+## 4    OR 29
+## 5    TX 28</code></pre>
+<p><br />
+The states with the fewest breweries have also been pulled out. There are 8 total because of four-way tie for fifth fewest breweries.<br />
+</p>
+<pre><code>##   State n
+## 1    DC 1
+## 2    ND 1
+## 3    SD 1
+## 4    WV 1
+## 5    AR 2
+## 6    DE 2
+## 7    MS 2
+## 8    NV 2</code></pre>
+<p><br />
+Base on the visual evidence there is not an even distribution of breweries among the states. Starting with the highest ranking state (Colorado) and moving down the list, the below plot shows how which states the data under analysis is coming from.<br />
+<img src="case_study_01_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="alcohol-content-bitterness-by-state" class="section level1">
+<h1>Alcohol Content, Bitterness by State</h1>
+<p>Two of the defining characteristics of beer is the alcohol content and the bitterness. The measure of these things are ABV and IBU respectively.<br />
+</p>
+<div id="alcohol-content" class="section level2">
+<h2>Alcohol Content</h2>
+<p>Before analyzing the data, it needs to be noted that not every entry in the data set had an ABV entry. The below plot shows the valid data for each state.<br />
+<img src="case_study_01_files/figure-html/unnamed-chunk-11-1.png" width="672" /><br />
+Given a relatively few data entries are missing ABV data, the entries will simply be excluded from any analysis that uses ABV. THe first analysis is how alcohol content breaks down by state. Below we can see a map of how the median ABV content is distributed by state.<br />
+<br />
+<img src="case_study_01_files/figure-html/unnamed-chunk-12-1.png" width="672" /><br />
+As another comparison, the same data is shown again in bar chart format.<br />
+<img src="case_study_01_files/figure-html/unnamed-chunk-13-1.png" width="672" /><br />
+As seen in the above chart, there are no real concerns about deleting the data points when analyzing by state because there is plenty of entries leftover for each state to maintain a valid analysis.</p>
+</div>
+<div id="summary-stats" class="section level2">
+<h2>Summary Stats</h2>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
+## 0.00100 0.05000 0.05600 0.05977 0.06700 0.12800      62</code></pre>
+<p><img src="case_study_01_files/figure-html/unnamed-chunk-14-1.png" width="672" /><br />
+Looking at the summary stats, we can see that ABV is close to normally distributed with a slight right skew. However, given the number of data points, it is safe to assume that is is normally distributed. This means that the majority of beers in the data set have between 5% and 6.7% alcohol content.</p>
+</div>
+<div id="bitterness-content" class="section level2">
+<h2>Bitterness Content</h2>
+<p>As the second primary characteristic of any particular beer, a similar analysis to IBU was done<br />
+</p>
+<p><br />
+Below the states with the number of beers with IBU scores for each state are shown. States with below 15 ratings are grayed out to highlight them as states with a low amount of data. Another way to view this chart is as the states the are the primary influences of any further analysis that uses IBU score. This important to note because any missing data was removed from from further analysis.<br />
+<img src="case_study_01_files/figure-html/unnamed-chunk-16-1.png" width="672" /><br />
+Similar to ABV, the median IBU for each state is shown as the color axis on a map of the United States. Note that South Dakota does not have any valid data.<br />
+<img src="case_study_01_files/figure-html/unnamed-chunk-17-1.png" width="672" /><br />
+Again, the same information as above in a bar chart format. <img src="case_study_01_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+</div>
+<div id="noteworthy-states" class="section level2">
+<h2>Noteworthy States</h2>
+<p>The state with the single beer that has the maximum ABV</p>
+<pre><code>## [1] &quot; CO&quot;</code></pre>
+<p><br />
+The state with the single beer that has the maximum IBU</p>
+<pre><code>## [1] &quot; OR&quot;</code></pre>
+</div>
+</div>
+<div id="alcohol-content-and-bitterness-relationship" class="section level1">
+<h1>Alcohol Content and Bitterness Relationship</h1>
+<p><img src="case_study_01_files/figure-html/unnamed-chunk-21-1.png" width="672" /><br />
+There appears to a positive correlation between ABV and IBU. This makes sense since one of the primary source of bitterness is the hop, which gets added in greater quantities as the alcohol content goes up to offset the taste.</p>
+</div>
+<div id="ale-classification-by-alcohol-content-and-bitterness" class="section level1">
+<h1>Ale Classification by Alcohol Content and Bitterness</h1>
+<p>Given the desire to classify ales as either an IPA or not by their bitterness and alchol content. We need to look at how big of a problem the missing data, particularly IBU data really is. Below each non ale was filtered out of data set. The remaining data points were then classified as either an IPA or not based on the presence of ‘IPA’ in their style entry. Finally as a result of the ABV and IBU being on different scales, each variable was turned into a Z score to since the classification was going to be based on Euclidean distance. <img src="case_study_01_files/figure-html/unnamed-chunk-22-1.png" width="672" /><br />
+Based on the visual evidence from the plot above, there is enough separation between an IPA and a non-IPA ale for the IBU and ABV to be used as predictors for the classification problem. Additionally the missing IBU data was evenly distributed so there are no additional concerns about removing the missing points since the sample is still representative of the larger population from the originally data set.</p>
+<div id="knn-classifier" class="section level2">
+<h2>KNN Classifier</h2>
+<p>It was determined that a KNN classifier should be used for this analysis. This only left the question of which value of K to use for this problem. Severl values of K were iterated through and the one with the best accuracy was chosen as the final selection. The plot for these values can be seen below. <img src="case_study_01_files/figure-html/unnamed-chunk-23-1.png" width="672" /><br />
+Based on this data the best value for K is</p>
+<pre><code>## [1] 23</code></pre>
+<p><br />
+Using this selection of K, a classification surface was created that shows how any unknown ale would be classified based on it ABV and IBU score with color axis showing the probability that it would be classified as an IPA <img src="case_study_01_files/figure-html/unnamed-chunk-25-1.png" width="672" /><br />
+This shows some visual evidence of ABV not being the best predictor for an IPA since there is a rough horizontal line in the surface arounf the IBU 50 mark. This falls in line with expectations since hops do not make a contribution to the alcohol content of a beer but do contribute to its bitterness, the trait that first comes to mind when describing an IPA. # Popular Styles by State IPA is not the only style of beer and despite the overall interest in it we need to look at just how popularity of brewing style it is. It is expected that popular brewing style is correlated with popularity of beer consumed. The plot below shows the single most popular style in each state.<br />
+<img src="case_study_01_files/figure-html/unnamed-chunk-26-1.png" width="672" /><br />
+As visually evident the American IPA is the most popular style in the most states. It is also seen the overall Ale style is the most popular broad style of beer in the with a few unique states. It is also interesting that the states are mostly are concentrated in the southeast.</p>
+</div>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>There are only so many resources that any one company has. It is therefore important to allocated these resources in order to develop the best strategies and the desired return. Here, we have looked at how breweries are distributed across the Unites States, where they are concentrated and where they are scarce. We addressed where out data is coming from and how the missing data for each category was handled so that the limitations of this analysis could be understood and determine the scope of conclusions made. The ABV and IBU scores were compared among the states, as well as their ability to predict whether an ALE is an IPA or not. Finally the distribution of favorite beer style by state was generated to inform the which style of beer is most deserving a resources. Each of one these analysis highlight useful market data to inform resource allocation.</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
